@@ -1,20 +1,21 @@
-# build-slm-from-scratch
+# Build a Small Language Model From Scratch
+> 7-Hour Workshop by Vizuara
 
-Course/workshop repo for building a small language model (SLM) from scratch.
+## Course Parts
+- **Part 1** — Data Pre-processing (2:00:23)
+- **Part 3** — Pre-training and Inference (1:39:23)
 
-## Notes index
+---
 
-- Part 01 — Data preprocessing: [part-01-data-preprocessing/notes.md](part-01-data-preprocessing/notes.md)
-- Part 02 — Tokenization: [part-02-tokenization/notes.md](part-02-tokenization/notes.md)
-- Part 03 — Pretraining + inference: [part-03-pretraining-inference/notes.md](part-03-pretraining-inference/notes.md)
+## Quick Notes Index
+| Part | Topic | Notes File |
+|------|-------|------------|
+| 1 | Data Pre-processing | [notes](./part-01-data-preprocessing/notes.md) |
+| 2 | Tokenization *(if covered)* | [notes](./part-02-tokenization/notes.md) |
+| 3 | Pre-training & Inference | [notes](./part-03-pretraining-inference/notes.md) |
+
+---
 
 ## Resources
-
-- Papers & links: [resources/papers.md](resources/papers.md)
-- Glossary: [resources/glossary.md](resources/glossary.md)
-
-## Quick conventions
-
-- Keep runnable scripts in each part’s `code/` folder.
-- Keep written notes in each part’s `notes.md`.
-- Don’t commit model weights/checkpoints (see `.gitignore`).
+- [Vizuara YouTube Playlist](https://www.youtube.com/@vizuara)
+- Add paper links, blog posts, and references in `resources/`
