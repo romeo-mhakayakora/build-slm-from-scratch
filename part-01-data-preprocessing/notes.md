@@ -203,7 +203,7 @@ Sub-word tokenization offers the **best of both worlds** — it avoids the OOV p
 
 
 ### Tokenization Quirks (Visualized via TikToken)
-https://www.bing.com/ck/a?!&&p=009cd75f14a63f26cfce5dd5bbc85a0c48a242ad9250edf541210bbf19762a78JmltdHM9MTc3OTc1MzYwMA&ptn=3&ver=2&hsh=4&fclid=2f21b488-fd6c-641d-298b-a16bfc136582&psq=TikToken&u=a1aHR0cHM6Ly90aWt0b2tlbml6ZXIudmVyY2VsLmFwcC8
+https://tiktokenizer.vercel.app/
 
 | Quirk | Detail |
 |---|---|
