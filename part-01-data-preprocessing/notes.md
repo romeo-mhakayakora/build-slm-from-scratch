@@ -372,6 +372,7 @@ def get_batch(split):
 | Lecture Video (YouTube) | https://youtu.be/KOXaH7-0gEE?si=O9zq91_TH3wH08aB |
 | TinyStories Paper (ArXiv) | https://arxiv.org/pdf/2305.07759 |
 | Google Colab Notebook | https://colab.research.google.com/drive/1k4G3G5MxYLxawmPfAknUN7dbbmyqIdQv#scrollTo=vFkgAjyMR8fa |
+| Miro Board | https://miro.com/app/board/uXjVIL4LZB0=/ |
 
 ---
 
