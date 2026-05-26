@@ -20,8 +20,7 @@
 10. [The Core Task — Creating Input / Output Pairs](#10-the-core-task--creating-input--output-pairs)
 11. [The Mechanics of Training — Tuning the Parameters](#11-the-mechanics-of-training--tuning-the-parameters)
 12. [Key Terminology](#12-key-terminology)
-13. [Translating Theory to Code — The Implementation Phase](#13-translating-theory-to-code--the-implementation-phase)
-14. [Final Insights & Big Picture](#14-final-insights--big-picture)
+13. [Final Insights & Big Picture](#13-final-insights--big-picture)
 
 ---
 
@@ -304,44 +303,6 @@ A batch is a **matrix** of input / output pairs:
 
 ---
 
-## 13. Translating Theory to Code — The Implementation Phase
-
-### A. Tokenizing and Memory Mapping
-
-```python
-# Libraries used
-from datasets import load_dataset   # Hugging Face — load TinyStories (2M rows)
-import tiktoken                      # GPT-2 BPE tokenizer
-import numpy as np
-
-# Load and tokenize
-enc = tiktoken.get_encoding("gpt2")  # vocab size = 50,257
-token_ids = enc.encode(text)
-
-# Memory-map to disk — CRITICAL for large datasets
-arr = np.memmap("train.bin", dtype=np.uint16, mode="w+", shape=(total_tokens,))
-```
-
-- Uses the **Hugging Face `datasets` library** to pull the 2-million-row TinyStories dataset.
-- Uses **`tiktoken`** (specifically the GPT-2 BPE encoder) to convert text into Token IDs.
-- **Crucial Production Trick (`np.memmap`):** The resulting massive array of Token IDs is written in chunks (shards/batches) directly to binary files on the hard drive (`train.bin` and `val.bin`) rather than held in RAM.
-
-### B. The `get_batch` Function
-
-This function dynamically grabs chunks of data during training.
-
-```python
-def get_batch(split):
-    data = train_data if split == "train" else val_data
-    # Random start indices
-    ix = torch.randint(len(data) - block_size, (batch_size,))
-    # x = input, y = x shifted by 1 (the target)
-    x = torch.stack([torch.from_numpy((data[i:i+block_size]).astype(np.int64)) for i in ix])
-    y = torch.stack([torch.from_numpy((data[i+1:i+1+block_size]).astype(np.int64)) for i in ix])
-    # Hardware optimizations
-    x, y = x.pin_memory().to(device, non_blocking=True), y.pin_memory().to(device, non_blocking=True)
-    return x, y
-```
 
 ### Hardware Optimizations Explained
 
@@ -352,7 +313,7 @@ def get_batch(split):
 
 ---
 
-## 14. Final Insights & Big Picture
+## 13. Final Insights & Big Picture
 
 ### The "Leap of Faith" in Data Prep
 - It seems mathematically absurd that feeding a computer a giant bag of shifted number arrays teaches it language.
