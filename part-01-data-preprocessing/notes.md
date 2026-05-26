@@ -209,6 +209,7 @@ Sub-word tokenization offers the **best of both worlds** — it avoids the OOV p
 | **Case Sensitivity** | `"egg"`, `"Egg"`, and `"EGG"` map to completely different Token IDs |
 | **Spacing** | A blank space at the start of a word binds to the word. `" egg"` is a different token than `"egg"` |
 | **Numbers** | Tokenizers often slice numbers at arbitrary places — this is the foundational reason why LLMs are notoriously bad at mathematics |
+https://www.bing.com/ck/a?!&&p=009cd75f14a63f26cfce5dd5bbc85a0c48a242ad9250edf541210bbf19762a78JmltdHM9MTc3OTc1MzYwMA&ptn=3&ver=2&hsh=4&fclid=2f21b488-fd6c-641d-298b-a16bfc136582&psq=TikToken&u=a1aHR0cHM6Ly90aWt0b2tlbml6ZXIudmVyY2VsLmFwcC8
 
 ---
 
