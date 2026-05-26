@@ -81,6 +81,7 @@ Scaling up the parameter count and computational compute solves two major proble
 - As model size and computational power scale, model performance improves.
 - At specific **"takeoff points,"** models suddenly acquire complex capabilities they were **never explicitly trained for** — e.g., arithmetic, logical reasoning, language translation.
 - Tech companies build massive models hoping to unlock even more advanced emergent properties, pushing toward **Artificial General Intelligence (AGI)**.
+- https://cset.georgetown.edu/article/emergent-abilities-in-large-language-models-an-explainer/
 
 ### B. Learning Form and Meaning (The Intuitive Reason)
 LLMs are only trained to predict the next token. We **never** explicitly teach them grammar, sentence structure, or real-world facts.
