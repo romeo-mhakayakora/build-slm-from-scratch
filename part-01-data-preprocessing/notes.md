@@ -199,6 +199,8 @@ Sub-word tokenization offers the **best of both worlds** — it avoids the OOV p
 - Rare words are pieced together using smaller sub-words or single characters.
 - This optimizes vocabulary size perfectly.
 - Example: The **GPT-2 tokenizer** uses a vocabulary size of exactly **50,257**.
+- https://vizuara.substack.com/p/understanding-byte-pair-encoding
+
 
 ### Tokenization Quirks (Visualized via TikToken)
 
