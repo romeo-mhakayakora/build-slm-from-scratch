@@ -24,6 +24,8 @@
 7. [The Output Block — Predicting the Next Token](#7-the-output-block--predicting-the-next-token)
 8. [Translating Theory to Code — PyTorch Implementation](#8-translating-theory-to-code--pytorch-implementation)
 9. [Hardware & Enterprise Constraints](#9-hardware--enterprise-constraints)
+10. [Supplementary Reading — From Words to Vectors (Vizuara Substack)](#10-supplementary-reading--from-words-to-vectors-vizuara-substack)
+11. [Q&A — Do We Train the Tokenizer Alongside the Model?](#11-qa--do-we-train-the-tokenizer-alongside-the-model)
 
 ---
 
@@ -464,6 +466,222 @@ A 200k context window means attention matrices of size `[200,000 × 200,000]` �
 
 ---
 
+---
+
+## 10. Supplementary Reading — From Words to Vectors (Vizuara Substack)
+
+**Source:** [From Words to Vectors: Understanding Word Embeddings in NLP](https://vizuara.substack.com/p/from-words-to-vectors-understanding)
+**Author:** Mayank Pratap Singh (Vizuara)
+
+This article deep-dives into the full evolution of how words became vectors — the foundation that makes the Token Embedding Matrix in our SLM possible.
+
+---
+
+### Why Turn Words into Numbers?
+
+Computers operate on numbers, not text. To make a machine understand language, we must **encode** words into numerical representations. This process evolved through several increasingly powerful approaches:
+
+---
+
+### Stage 1 — Integer Encoding (Token IDs)
+
+Assign each word a unique numeric ID:
+- `"apple"` → 1, `"banana"` → 2, `"cat"` → 3
+
+**Fatal flaw:** These numbers carry **no semantic meaning**. The model has no clue that `"cat"` and `"dog"` are more related to each other than to `"banana"`. They are just arbitrary labels.
+
+---
+
+### Stage 2 — One-Hot Encoding
+
+Each word is represented as a binary vector of length = vocabulary size, with a single `1` at the word's position and `0` everywhere else:
+- `"apple"` → `[1, 0, 0, 0, 0]`
+- `"banana"` → `[0, 1, 0, 0, 0]`
+- `"cat"` → `[0, 0, 1, 0, 0]`
+
+**Improvement:** Removes the false numerical ranking between words.
+
+**Two fatal flaws:**
+- **Sparse & huge:** With a 600,000-word vocabulary, each vector is 600,000 numbers long with only one `1`. Extremely inefficient in memory and computation.
+- **Still no semantic meaning:** Every word's vector is equally different from every other word's. `"cat"` is as "unrelated" to `"dog"` as it is to `"table"` — which is wrong.
+
+---
+
+### Stage 3 — Bag of Words (BoW)
+
+Represents an entire piece of text by counting word occurrences across the vocabulary:
+
+**Improvement:** Captures which words are present and how often.
+
+**Fatal flaw:** Completely **ignores word order**. The sentences `"dog bites man"` and `"man bites dog"` produce identical BoW vectors — but mean completely different things.
+
+---
+
+### The Core Insight — The Distributional Hypothesis
+
+> *"You shall know a word by the company it keeps."* — J.R. Firth
+
+This is the foundational linguistic principle behind all modern embeddings: **words that appear in similar contexts tend to have similar meanings.**
+
+**Example:** If you see *"The glorp is barking and wagging its tail"*, you can infer `"glorp"` is probably a dog — purely from context. The surrounding words carry the meaning.
+
+Applied to machine learning: if `"doctor"` and `"nurse"` both frequently appear near `"hospital"` and `"patient"`, a model can learn they are semantically related — without being told explicitly.
+
+---
+
+### Stage 4 — Word2Vec (Google, 2013)
+
+Word2Vec operationalizes the Distributional Hypothesis by training a simple neural network to predict words from their context (or context from words). The learned internal weights become the word vectors.
+
+**Two training strategies:**
+
+**① CBOW (Continuous Bag of Words)**
+- Input: surrounding context words
+- Task: predict the missing center word
+- Example: `["The", "cat", "on", "the", "mat"]` → predict `"sat"`
+- The model must learn which words tend to fill which contexts → vectors encode meaning.
+
+**② Skip-Gram**
+- Input: one center word
+- Task: predict the surrounding context words
+- Example: given `"coffee"` → predict `"morning"`, `"mug"`, `"bean"` nearby
+- The reverse of CBOW — learns to map a word to its likely neighborhood.
+
+**The result:** After training on millions of sentences, words that share similar contexts cluster together in vector space. Words that share no context are geometrically distant.
+
+---
+
+### The Famous Analogy — King − Man + Woman ≈ Queen
+
+One of the most striking demonstrations of what Word2Vec learns:
+
+```
+vector("king") − vector("man") + vector("woman") ≈ vector("queen")
+```
+
+This works because the model has learned that the geometric **direction** from `"man"` to `"king"` (royalty) is the same direction as from `"woman"` to `"queen"`. Semantic relationships are encoded as directions in vector space.
+
+Equivalently: `queen − woman = king − man` — the relationship between "queen" and "woman" (royalty) is the same as between "king" and "man".
+
+---
+
+### Measuring Similarity — Cosine Similarity
+
+Once words are vectors, similarity is measured by **cosine similarity** — the angle between two vectors, not their magnitude.
+
+| Angle | Cosine Value | Meaning |
+|---|---|---|
+| Small angle (pointing same direction) | Close to 1.0 | Words are semantically similar |
+| 90° (perpendicular) | 0 | No particular similarity |
+| 180° (opposite directions) | -1 | Potentially opposite meanings |
+
+**Why angle over magnitude?** Some words appear more frequently and get larger vector magnitudes — but what encodes meaning is the *direction* (the pattern of values across dimensions), not the size. Cosine similarity normalizes magnitude out.
+
+**Example:** Computing cosine similarity between `"dog"` and all other words might yield:
+- `"cat"` → 0.8
+- `"wolf"` → 0.75
+- `"banana"` → 0.2
+
+This aligns perfectly with intuition.
+
+---
+
+### Interpretability — What Do the Dimensions Mean?
+
+Word vectors are typically 300–768+ dimensions. Each dimension is a real-valued number, but they are **learned in an unsupervised way** — no dimension is explicitly labeled.
+
+However, by visualizing vectors as heatmaps (negative values = purple, positive = red), patterns emerge:
+
+**Case Study 1 — Living vs. Non-Living** (`man`, `woman`, `boy`, `girl`, `banana`, `water`):
+- In dimension 6, all living entities show strong negative values; non-living objects do not.
+- Hypothesis: dimension 6 may encode something related to animacy or agency.
+
+**Case Study 2 — Emotions** (`happy`, `joyful`, `sad`):
+- `happy` and `joyful` show nearly identical patterns across most dimensions.
+- At dimension 6: `happy` = 0.04, `joyful` = 0.17, `sad` = 0.86 — a clear divergence.
+- Hypothesis: dimension 6 may encode emotional polarity.
+
+**Case Study 3 — Life Stages** (`baby`, `child`, `teenager`, `adult`):
+- All four words have notably similar vectors, sharing patterns at dimensions 2, 3, and 5.
+- At dimension 8: `baby` = 1.30 → `child` = 1.17 → `teenager` = 0.98 → `adult` = 0.79 — a descending trend.
+- Hypothesis: may encode something like "available free time" or developmental stage.
+
+**Key takeaway:** We cannot definitively label individual dimensions. Interpretability comes from **relative comparisons and observed patterns**, not absolute values. But consistent patterns confirm the model is encoding real semantic structure.
+
+---
+
+### Stage 5 — Contextual Embeddings (Transformers: BERT, GPT)
+
+**The remaining flaw with Word2Vec:** Every word gets **one static vector** regardless of context. But many words are **polysemous** — they have multiple meanings depending on use.
+
+**Classic example:**
+- *"Mayank is sitting quietly on the river **bank**, watching the water flow."*
+- *"Mayank is robbing the **bank** downtown with a mask on his face."*
+
+Word2Vec assigns the exact same vector to `"bank"` in both sentences — it has to pick one point in space that awkwardly averages both meanings.
+
+**The Transformer solution — Contextual Embeddings:**
+- Models like **BERT** and **GPT** generate a **fresh vector for each token occurrence** based on the full sentence it appears in.
+- `"bank"` in the finance sentence gets a vector close to `"money"`, `"deposit"`, `"account"`.
+- `"bank"` in the river sentence gets a vector close to `"water"`, `"river"`, `"edge"`.
+- Same word, two completely different vectors — determined by context via the self-attention mechanism.
+
+This is exactly the problem that the **Processor Block (Multi-Head Self-Attention)** in our SLM solves. The Token Embedding Matrix gives each token a starting static vector — but the Transformer layers then **update and refine** those vectors based on the full surrounding context.
+
+---
+
+### Evolution Summary
+
+| Method | Semantic Meaning | Handles OOV | Context-Aware | Practical |
+|---|---|---|---|---|
+| Integer IDs | ❌ | ❌ | ❌ | ✅ |
+| One-Hot | ❌ | ❌ | ❌ | ❌ (sparse) |
+| Bag of Words | ❌ | ❌ | ❌ | ⚠️ |
+| Word2Vec | ✅ (static) | ❌ | ❌ | ✅ |
+| Transformers (BERT/GPT) | ✅ (contextual) | ✅ | ✅ | ✅ |
+
+---
+
+## 11. Q&A — Do We Train the Tokenizer Alongside the Model?
+
+**Short answer: No. The tokenizer is trained separately first, then frozen. The model trains on its own after.**
+
+### Tokenizer Training (done once, upfront)
+- The BPE tokenizer is trained on the raw text corpus **before** the model ever sees any data.
+- It learns which character pairs to merge based purely on **frequency statistics** in the text — no neural network, no gradients, no backpropagation involved.
+- Once trained, the vocabulary (e.g., 50,257 tokens in GPT-2) is **locked / frozen**.
+- In this course specifically, we are not training the tokenizer from scratch — we **reuse the pre-built GPT-2 BPE tokenizer** via `tiktoken`. This step is already done for us.
+
+### Model Training (after tokenization)
+- Once the tokenizer is frozen, the entire corpus is tokenized into token IDs and written to `train.bin` / `val.bin` — **this happens once as a preprocessing step**.
+- Only then does actual model training begin — gradient descent tuning the Token Embedding Matrix, Position Embedding Matrix, Q/K/V projection weights, MLP weights, Output Head, etc.
+- The tokenizer is **never touched again** during model training.
+
+### Why You Cannot Train Them Together
+- The tokenizer's vocabulary defines the **shape of the Token Embedding Matrix** (`Vocabulary Size × Embedding Dimension`).
+- If the vocabulary kept changing during training, the embedding matrix dimensions would change — **breaking the entire architecture mid-training**.
+- The model needs a **stable, fixed input space** to learn from.
+
+### The Full Pipeline in Order
+```
+Raw Text
+   ↓
+① Train / load tokenizer  (BPE — frequency-based statistics, no gradients)
+   ↓
+② Tokenize entire corpus → train.bin / val.bin  (done once, offline)
+   ↓
+③ Train the model  (gradient descent on frozen vocabulary)
+```
+
+### Key distinction
+These are fundamentally **two different types of "training":**
+- Tokenizer → uses **frequency statistics** (no neural network)
+- Model → uses **backpropagation and gradient descent**
+
+They happen **sequentially, never simultaneously**.
+
+---
+
 ## Resources
 
 | Resource | Link |
@@ -472,6 +690,7 @@ A 200k context window means attention matrices of size `[200,000 × 200,000]` �
 | "Attention Is All You Need" (2017) | https://arxiv.org/abs/1706.03762 |
 | Word2Vec Paper — Google (2014) | https://arxiv.org/abs/1301.3781 |
 | TinyStories Paper (ArXiv) | https://arxiv.org/pdf/2305.07759 |
+| From Words to Vectors — Vizuara Substack | https://vizuara.substack.com/p/from-words-to-vectors-understanding |
 
 ---
 
