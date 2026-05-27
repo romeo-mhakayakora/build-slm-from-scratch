@@ -4,17 +4,17 @@
 This workshop is based on the methodology introduced in the Microsoft Research paper **“TinyStories: How Small Can Language Models Be and Still Speak Coherent English?”**. The project follows the same general approach: train a small causal language model on a small, highly curated dataset of short children’s stories (TinyStories) to learn coherent English generation without needing internet-scale data.
 
 ## Course Parts
-- **Part 1** — Data Pre-processing (2:00:23)
-- **Part 3** — Pre-training and Inference (1:39:23)
+- **Part 1** — Preprocessing + Tokenization (combined)
+- **Part 2** — Architecture
 
 ---
 
 ## Quick Notes Index
 | Part | Topic | Notes File |
 |------|-------|------------|
-| 1 | Data Pre-processing | [notes](./part-01-data-preprocessing/notes.md) |
-| 2 | Tokenization *(if covered)* | [notes](./part-02-tokenization/notes.md) |
-| 3 | Pre-training & Inference | [notes](./part-03-pretraining-inference/notes.md) |
+| 1a | Data Pre-processing | [notes](./preprocessing-and-tokenization/part-01-data-preprocessing/notes.md) |
+| 1b | Tokenization | [notes](./preprocessing-and-tokenization/part-02-tokenization/notes.md) |
+| 2 | Architecture | [notes](./architecture/notes.md) |
 
 ---
 
