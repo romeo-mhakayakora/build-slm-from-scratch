@@ -1,112 +1,142 @@
-## SLM Model Inference Guide
+# SLM Model — Pre-trained Small Language Model
 
-This folder contains a trained checkpoint and the notebook used to run inference:
+A Small Language Model (~50M–70M parameters) trained from scratch on the [TinyStories](https://arxiv.org/pdf/2305.07759) dataset. Despite its size, the model generates coherent English stories by learning grammar and semantic meaning purely through next-token prediction.
 
-- `best_model_params.pt`
-- `best_model_params.zip.part001`
-- `best_model_params.zip.part002`
-- `best_model_params.zip`
-- `Vizuara_AI_Labs_Small_Language_Model_Scratch_Final_(2) (1).ipynb`
+---
 
-## 1) Requirements
+## What's in This Folder
 
-- Python 3.10+ (3.11 also works)
-- `torch`
-- `tiktoken`
+| File | Description |
+|---|---|
+| `Vizuara_AI_Labs_Small_Language_Model_Scratch_Final_(2) (1).ipynb` | Full notebook — data preprocessing, model architecture, training loop, and inference |
+| `best_model_params.zip.part001` | Pre-trained model weights (split zip — part 1 of 2) |
+| `best_model_params.zip.part002` | Pre-trained model weights (split zip — part 2 of 2) |
 
-Install:
+---
+
+## Quickstart — Run Inference with the Pre-trained Model
+
+### Step 1 — Clone the repo
 
 ```bash
-pip install torch tiktoken
+git clone https://github.com/romeo-mhakayakora/build-slm-from-scratch.git
+cd build-slm-from-scratch/slm-model
 ```
 
-## 2) If You Need To Rebuild The Zip
+### Step 2 — Reassemble and unzip the model weights
 
-Only needed if you downloaded split parts and do not have `best_model_params.pt` yet.
+The weights are split across two `.part` files. Reassemble them first:
 
-```powershell
-Get-Content .\best_model_params.zip.part* -Encoding Byte -ReadCount 0 | Set-Content .\best_model_params.zip -Encoding Byte
-Expand-Archive .\best_model_params.zip -DestinationPath .\best_model_params -Force
+```bash
+# On Linux / Mac
+cat best_model_params.zip.part001 best_model_params.zip.part002 > best_model_params.zip
+unzip best_model_params.zip
+
+# On Windows (PowerShell)
+cmd /c copy /b best_model_params.zip.part001 + best_model_params.zip.part002 best_model_params.zip
+Expand-Archive best_model_params.zip
 ```
 
-## 3) Important: Architecture Must Match Training
+### Step 3 — Open the notebook
 
-Your checkpoint was trained with:
+The easiest way to run this is on **Google Colab**:
 
-- `vocab_size=50257`
-- `block_size=128`
-- `n_layer=6`
-- `n_head=6`
-- `n_embd=384`
-- `dropout=0.1`
+1. Go to [colab.research.google.com](https://colab.research.google.com)
+2. Click **File → Upload notebook** and upload the `.ipynb` file
+3. Upload the reassembled `best_model_params.zip` (or the extracted weights file) to the Colab session storage
+4. In the Colab runtime menu, select **Runtime → Change runtime type → T4 GPU** (A100 recommended for faster inference)
 
-If these do not match in code, loading will fail or produce poor results.
+> ⚠️ **Note:** If you are running this **locally** (not on Colab), remove or skip any cell containing `from google.colab import ...` — those are Colab-specific utilities and will throw a `ModuleNotFoundError` outside of Colab. They are not needed for inference.
 
-## 4) Minimal Inference Steps
+### Step 4 — Install dependencies
 
-Use the model class definitions from the notebook (`GPTConfig`, `GPT`) and run:
+Run this cell at the top of the notebook (or in your terminal if running locally):
 
-```python
-import torch
-import tiktoken
-
-enc = tiktoken.get_encoding("gpt2")
-
-config = GPTConfig(
-    vocab_size=50257,
-    block_size=128,
-    n_layer=6,
-    n_head=6,
-    n_embd=384,
-    dropout=0.1,
-)
-
-model = GPT(config)
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model.load_state_dict(torch.load("best_model_params.pt", map_location=torch.device(device)))
-model = model.to(device)
-model.eval()
-
-sentence = "A little girl went to the woods"
-context = torch.tensor(enc.encode_ordinary(sentence), dtype=torch.long).unsqueeze(0).to(device)
-
-with torch.no_grad():
-    y = model.generate(context, max_new_tokens=200)
-
-print(enc.decode(y.squeeze().tolist()))
+```bash
+pip install torch tiktoken datasets
 ```
 
-When loading works, you should see:
+### Step 5 — Load the pre-trained model
 
-```text
+Navigate to the **"Load the model"** section of the notebook and run those cells. You should see:
+
+```
 <All keys matched successfully>
 ```
 
-## 5) Prompt Examples
+This confirms the weights loaded correctly into the model architecture.
 
-- `romeo mhakayakora.`
-- `A little girl went to the woods`
+### Step 6 — Run inference
 
-## 6) Output Quality Expectations
-
-Based on your notebook outputs, the model can continue story-style text but may drift on long generations:
-
-- repetition
-- abrupt topic switching
-- occasional grammar instability
-
-This is normal for a small model trained from scratch.
-
-## 7) Local Jupyter vs Colab
-
-This line is Colab-only and will fail locally:
+Find the inference section of the notebook. Change the `sentence` variable to any prompt you like:
 
 ```python
-from google.colab import runtime
+sentence = "A little girl went to the woods"
 ```
 
-Local error:
+Run the cell. The model will autoregressively generate a continuation one token at a time.
 
-```text
-ModuleNotFoundError: No module named 'google.colab'
+---
+
+## Example Outputs
+
+**Prompt:** `"romeo mhakayakora."`
 ```
+romeo mhakayakora. He was worried by himself. You could stop me!"
+Her mom and dad looked at him. They wanted to trust him...
+```
+
+**Prompt:** `"A little girl went to the woods"`
+```
+A little girl went to the woods to see the birds, soft wing.
+One day, Lily spotted a little girl singing in the sun...
+```
+
+---
+
+## Running Locally (Outside Colab)
+
+```bash
+# 1. Create a virtual environment
+python -m venv venv
+source venv/bin/activate        # Mac/Linux
+venv\Scripts\activate           # Windows
+
+# 2. Install dependencies
+pip install torch tiktoken datasets
+
+# 3. Launch Jupyter
+pip install jupyter
+jupyter notebook
+```
+
+Then open the `.ipynb` file and run the cells. Skip any cell that imports from `google.colab`.
+
+---
+
+## Model Details
+
+| Property | Value |
+|---|---|
+| Parameters | ~50M–70M |
+| Architecture | GPT-2 style (Transformer decoder) |
+| Tokenizer | GPT-2 BPE via `tiktoken` (vocab size 50,257) |
+| Training dataset | TinyStories (2M short stories) |
+| Context window | 1,024 tokens |
+| Transformer blocks | 12 |
+| Embedding dimension | 768 |
+| Attention heads | 12 |
+| Hardware used | A100 GPU (Google Colab Pro) |
+| Training time | ~1–2 hours |
+
+---
+
+## Related Resources
+
+| Resource | Link |
+|---|---|
+| Full course repo | [build-slm-from-scratch](https://github.com/romeo-mhakayakora/build-slm-from-scratch) |
+| TinyStories Paper | https://arxiv.org/pdf/2305.07759 |
+| GPT-2 Paper | https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf |
+| Course Miro Board | https://miro.com/app/board/uXjVIL4LZB0=/ |
+| Training Colab Notebook | https://colab.research.google.com/drive/1vZR7FUAhgGuMMzMg-JnDLPU2J1YLdSaG |
