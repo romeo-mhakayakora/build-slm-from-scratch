@@ -1,53 +1,112 @@
-## SLM Model Usage Notes
+## SLM Model Inference Guide
 
-This folder contains the trained parameter checkpoint and a notebook used for local inference experiments.
+This folder contains a trained checkpoint and the notebook used to run inference:
 
-### Files
-
-- `best_model_params.pt`: trained model checkpoint.
+- `best_model_params.pt`
 - `best_model_params.zip.part001`
 - `best_model_params.zip.part002`
-- `best_model_params.zip`: reconstructed archive form of the checkpoint.
-- `Vizuara_AI_Labs_Small_Language_Model_Scratch_Final_(2) (1).ipynb`: notebook used for testing generation.
+- `best_model_params.zip`
+- `Vizuara_AI_Labs_Small_Language_Model_Scratch_Final_(2) (1).ipynb`
 
-### Rebuild Checkpoint Zip (if needed)
+## 1) Requirements
 
-If you only have the split parts, rebuild the archive first:
+- Python 3.10+ (3.11 also works)
+- `torch`
+- `tiktoken`
+
+Install:
+
+```bash
+pip install torch tiktoken
+```
+
+## 2) If You Need To Rebuild The Zip
+
+Only needed if you downloaded split parts and do not have `best_model_params.pt` yet.
 
 ```powershell
 Get-Content .\best_model_params.zip.part* -Encoding Byte -ReadCount 0 | Set-Content .\best_model_params.zip -Encoding Byte
 Expand-Archive .\best_model_params.zip -DestinationPath .\best_model_params -Force
 ```
 
-### Load + Quick Inference
+## 3) Important: Architecture Must Match Training
 
-When checkpoint loading works, you should see:
+Your checkpoint was trained with:
+
+- `vocab_size=50257`
+- `block_size=128`
+- `n_layer=6`
+- `n_head=6`
+- `n_embd=384`
+- `dropout=0.1`
+
+If these do not match in code, loading will fail or produce poor results.
+
+## 4) Minimal Inference Steps
+
+Use the model class definitions from the notebook (`GPTConfig`, `GPT`) and run:
+
+```python
+import torch
+import tiktoken
+
+enc = tiktoken.get_encoding("gpt2")
+
+config = GPTConfig(
+    vocab_size=50257,
+    block_size=128,
+    n_layer=6,
+    n_head=6,
+    n_embd=384,
+    dropout=0.1,
+)
+
+model = GPT(config)
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model.load_state_dict(torch.load("best_model_params.pt", map_location=torch.device(device)))
+model = model.to(device)
+model.eval()
+
+sentence = "A little girl went to the woods"
+context = torch.tensor(enc.encode_ordinary(sentence), dtype=torch.long).unsqueeze(0).to(device)
+
+with torch.no_grad():
+    y = model.generate(context, max_new_tokens=200)
+
+print(enc.decode(y.squeeze().tolist()))
+```
+
+When loading works, you should see:
 
 ```text
 <All keys matched successfully>
 ```
 
-Then test with prompts such as:
+## 5) Prompt Examples
 
 - `romeo mhakayakora.`
 - `A little girl went to the woods`
 
-### What To Expect From Outputs
+## 6) Output Quality Expectations
 
-Current generations are coherent in short spans but can drift over longer text (topic jumps, repetition, mixed grammar). This is expected for a small model trained from scratch with limited data/compute.
+Based on your notebook outputs, the model can continue story-style text but may drift on long generations:
 
-### Environment Note
+- repetition
+- abrupt topic switching
+- occasional grammar instability
 
-If you run locally (not Google Colab), this import will fail:
+This is normal for a small model trained from scratch.
+
+## 7) Local Jupyter vs Colab
+
+This line is Colab-only and will fail locally:
 
 ```python
 from google.colab import runtime
 ```
 
-Error:
+Local error:
 
 ```text
 ModuleNotFoundError: No module named 'google.colab'
 ```
-
-Use standard local notebook/kernel controls instead of Colab runtime commands.
