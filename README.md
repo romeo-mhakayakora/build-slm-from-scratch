@@ -6,6 +6,7 @@ This workshop is based on the methodology introduced in the Microsoft Research p
 ## Course Parts
 - **Part 1** — Preprocessing + Tokenization (combined)
 - **Part 2** — Architecture
+- **Part 3** — Pre-training and Inference
 
 ---
 
@@ -15,6 +16,7 @@ This workshop is based on the methodology introduced in the Microsoft Research p
 | 1a | Data Pre-processing | [notes](./preprocessing-and-tokenization/part-01-data-preprocessing/notes.md) |
 | 1b | Tokenization | [notes](./preprocessing-and-tokenization/part-02-tokenization/notes.md) |
 | 2 | Architecture | [notes](./architecture/notes.md) |
+| 3 | Pre-training and Inference | [notes](./Pre-training%20and%20Inference/notes.md) |
 
 ---
 
