@@ -13,10 +13,10 @@ This workshop is based on the methodology introduced in the Microsoft Research p
 ## Quick Notes Index
 | Part | Topic | Notes File |
 |------|-------|------------|
-| 1a | Data Pre-processing | [notes](./preprocessing-and-tokenization/part-01-data-preprocessing/notes.md) |
-| 1b | Tokenization | [notes](./preprocessing-and-tokenization/part-02-tokenization/notes.md) |
-| 2 | Architecture | [notes](./architecture/notes.md) |
-| 3 | Pre-training and Inference | [notes](./Pre-training%20and%20Inference/notes.md) |
+| 1a | Data Pre-processing | [notes](./01-preprocessing-and-tokenization/part-01-data-preprocessing/notes.md) |
+| 1b | Tokenization | [notes](./01-preprocessing-and-tokenization/part-02-tokenization/notes.md) |
+| 2 | Architecture | [notes](./02-architecture/notes.md) |
+| 3 | Pre-training and Inference | [notes](./03-pre-training-and-inference/notes.md) |
 
 ---
 
