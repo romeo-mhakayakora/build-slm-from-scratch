@@ -348,3 +348,38 @@ A batch is a **matrix** of input / output pairs:
 - [ ] How does `np.memmap` handle concurrent read/write in a multi-GPU training scenario?
 - [ ] Why does tokenizing numbers arbitrarily cause math failures — is this fully a tokenization problem or also an architecture problem?
 - [ ] What does the Attention Mechanism look like under the hood? (Next lecture)
+
+
+---
+
+# Part 02 — Tokenization
+
+## Goal
+
+
+## Key ideas
+
+- Character vs subword tokenization
+- BPE vs Unigram vs WordPiece (high-level)
+
+## Steps / checklist
+
+- [ ] Choose tokenizer type (BPE/Unigram/etc.)
+- [ ] Define special tokens
+- [ ] Train tokenizer on preprocessed corpus
+- [ ] Validate vocab coverage + token length stats
+- [ ] Save + version tokenizer artifacts
+
+## Decisions
+
+- Tokenizer algorithm:
+- Vocab size:
+- Normalization (lowercasing, NFC/NFKC):
+- Special tokens:
+
+## Experiments / results
+
+
+## Links
+
+
